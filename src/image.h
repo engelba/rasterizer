@@ -1,8 +1,9 @@
 #ifndef IMAGE_H
-    #define IMAGE_H
+#define IMAGE_H
 
 #include <stdio.h>
-#include "point.h"
+#include <stdbool.h>
+#include "vectors.h"
 
 void writeImageToFile(int width, int height, struct float3 image[height][width], const char* filename) {
     FILE* f = fopen(filename, "wb");
@@ -61,16 +62,50 @@ void createTestImage() {
 
      struct float3 image[height][width];
 
+    struct float2 a = {0.2f * height, 0.2f * width};
+    struct float2 b = {0.4f * height, 0.7f * width};
+    struct float2 c = {0.8f * height, 0.4f * width};
+
     for(int x = 0; x <width; x++) {
         for(int y = 0; y < height; y++) {
-            float r =x / (width - 1.0f);
-            float g =y / (height - 1.0f);
-            image[y][x] = (struct float3) {r, g, 0.0f};
+            struct float2 p = (struct float2) {(float)x, (float)y};
+            bool inside = pointInTriangle(a, b, c, p) ;
+            if (inside) image[y][x] = (struct float3) {0.0f, 0.0f, 1.0f};
+            else image[y][x] = (struct float3){0.0f, 0.0f, 0.0f}; // 2. Explicit Black Background
+            
         }
     }
 
-    writeImageToFile(width, height, image, "out.bmp");
+        writeImageToFile(width, height, image, "out.bmp");
 }
+
+
+void createTrianglesSoupImage() {
+    int width = 64;
+    int height = 64;
+
+     struct float3 image[height][width];
+
+    struct triangle2 triangle;
+    char filename[64];
+
+    for (int i = 0; i < 10; ++i){
+
+        triangle = getRandomTriangle((float)width, (float)height); 
+        for(int x = 0; x <width; x++) {
+            for(int y = 0; y < height; y++) {
+                struct float2 p = (struct float2) {(float)x, (float)y};
+                 bool inside = pointInTriangle(triangle.a, triangle.b, triangle.c, p) ;
+                 if (inside) image[y][x] = (struct float3) {0.0f, 0.0f, 1.0f};
+                 else image[y][x] = (struct float3){0.0f, 0.0f, 0.0f}; // 2. Explicit Black Background
+                
+            }
+        }
+        snprintf(filename, sizeof(filename), "out/out_%d.bmp", i);
+        writeImageToFile(width, height, image, filename);
+    }
+}
+
 
 
 #endif // !IMAGE_H

@@ -1,8 +1,10 @@
 #include "image.h"
+#include <stdlib.h>
+#include <time.h>
 
 int main() {
-    
-    createTestImage();
+    srand((unsigned int)time(NULL));
+createTrianglesSoupImage();
     
     return 0;
 }
