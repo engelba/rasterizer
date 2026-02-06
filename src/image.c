@@ -1,9 +1,7 @@
-#ifndef IMAGE_H
-#define IMAGE_H
-
 #include <stdio.h>
 #include <stdbool.h>
 #include "vectors.h"
+#include "image.h"
 
 void writeImageToFile(int width, int height, struct float3 image[height][width], const char* filename) {
     FILE* f = fopen(filename, "wb");
@@ -81,8 +79,8 @@ void createTestImage() {
 
 
 void createTrianglesSoupImage() {
-    int width = 64;
-    int height = 64;
+    int width = 512;
+    int height = 512;
 
      struct float3 image[height][width];
 
@@ -105,7 +103,3 @@ void createTrianglesSoupImage() {
         writeImageToFile(width, height, image, filename);
     }
 }
-
-
-
-#endif // !IMAGE_H

@@ -1,11 +1,20 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11
+# -I$(INCLUDE_DIR) tells the compiler to look in include/ for header files
 SRC_DIR = src
 BUILD_DIR = build
+INCLUDE_DIR = include
 
-$(BUILD_DIR)/main: $(SRC_DIR)/main.c $(SRC_DIR)/vectors.h $(SRC_DIR)/image.h
+CFLAGS = -Wall -Wextra -std=c11 -I $(INCLUDE_DIR)
+# Automatically find all .c files in src/
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+# Define the final executable path
+TARGET = $(BUILD_DIR)/main
+
+all: $(TARGET)
+
+$(TARGET): $(SRCS)
 	@mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(SRC_DIR)/main.c -o $(BUILD_DIR)/main
+	$(CC) $(CFLAGS) $(SRCS) -o $(TARGET)
 
 clean:
 	rm -rf $(BUILD_DIR)

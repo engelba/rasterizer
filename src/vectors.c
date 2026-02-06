@@ -1,25 +1,6 @@
-#ifndef VECTORS_H
-#define VECTORS_H
-
-#include <stdbool.h>
 #include "random.h"
-
-struct float3 {
-    float x;
-    float y;
-    float z;
-};
-
-struct float2 {
-    float x;
-    float y;
-};
-
-struct triangle2 {
-    struct float2 a;
-    struct float2 b;
-    struct float2 c;
-};
+#include "vectors.h"
+#include <stdbool.h>
 
 float dot_float2(struct float2 a, struct float2 b) {
     return a.x * b.x + a.y * b.y; 
@@ -55,4 +36,3 @@ struct triangle2 getRandomTriangle(int max_x, int max_y) {
 
     return triangle;
 }
-#endif
