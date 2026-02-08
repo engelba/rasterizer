@@ -3,7 +3,7 @@
 #include "vectors.h"
 #include "image.h"
 
-void writeImageToFile(int width, int height, struct float3 image[height][width], const char* filename) {
+void writeImageToFile(int width, int height, float3 image[height][width], const char* filename) {
     FILE* f = fopen(filename, "wb");
     if (!f) return;
 
@@ -58,18 +58,18 @@ void createTestImage() {
     int width = 64;
     int height = 64;
 
-     struct float3 image[height][width];
+     float3 image[height][width];
 
-    struct float2 a = {0.2f * height, 0.2f * width};
-    struct float2 b = {0.4f * height, 0.7f * width};
-    struct float2 c = {0.8f * height, 0.4f * width};
+    float2 a = {0.2f * height, 0.2f * width};
+    float2 b = {0.4f * height, 0.7f * width};
+    float2 c = {0.8f * height, 0.4f * width};
 
     for(int x = 0; x <width; x++) {
         for(int y = 0; y < height; y++) {
-            struct float2 p = (struct float2) {(float)x, (float)y};
+            float2 p = (float2) {(float)x, (float)y};
             bool inside = pointInTriangle(a, b, c, p) ;
-            if (inside) image[y][x] = (struct float3) {0.0f, 0.0f, 1.0f};
-            else image[y][x] = (struct float3){0.0f, 0.0f, 0.0f}; // 2. Explicit Black Background
+            if (inside) image[y][x] = (float3) {0.0f, 0.0f, 1.0f};
+            else image[y][x] = (float3){0.0f, 0.0f, 0.0f}; // 2. Explicit Black Background
             
         }
     }
@@ -81,25 +81,54 @@ void createTestImage() {
 void createTrianglesSoupImage() {
     int width = 512;
     int height = 512;
-
-     struct float3 image[height][width];
-
-    struct triangle2 triangle;
     char filename[64];
 
-    for (int i = 0; i < 10; ++i){
+    float3 image[height][width];
+    int n_triangles = 10;
+    float max_triangle_speed = 10.0;
 
-        triangle = getRandomTriangle((float)width, (float)height); 
-        for(int x = 0; x <width; x++) {
-            for(int y = 0; y < height; y++) {
-                struct float2 p = (struct float2) {(float)x, (float)y};
-                 bool inside = pointInTriangle(triangle.a, triangle.b, triangle.c, p) ;
-                 if (inside) image[y][x] = (struct float3) {0.0f, 0.0f, 1.0f};
-                 else image[y][x] = (struct float3){0.0f, 0.0f, 0.0f}; // 2. Explicit Black Background
-                
+    triangle2 triangles[n_triangles];
+    float3 triangle_colors[n_triangles];
+    float2 triangles_velocities[n_triangles];
+    
+    for(int i = 0; i < n_triangles; ++i) {
+        triangles[i] = getRandomTriangle((float)width, (float)height);
+        triangle_colors[i] = getRandomFloat3();
+        triangles_velocities[i] = getRandomFloat2();
+        triangles_velocities[i].x = (triangles_velocities[i].x * 2 * max_triangle_speed - max_triangle_speed);
+        triangles_velocities[i].y = (triangles_velocities[i].y * 2 * max_triangle_speed - max_triangle_speed);
+    }
+
+    for (int i = 0; i < 20; ++i){
+        // Clear image
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                image[y][x] = (float3){0.0f, 0.0f, 0.0f}; // Black bg
             }
         }
-        snprintf(filename, sizeof(filename), "out/out_%d.bmp", i);
+
+        // Draw Triangles
+        for (int j = 0; j < n_triangles; ++j) {
+            for(int x = 0; x <width; x++) {
+                for(int y = 0; y < height; y++) {
+                    float2 p = (float2) {(float)x, (float)y};
+                    bool inside = pointInTriangle(triangles[j].a, triangles[j].b, triangles[j].c, p) ;
+                    if (inside) image[y][x] = triangle_colors[j];
+                }
+            }
+
+            // Move triangle by velocity
+            triangles[j].a.x += triangles_velocities[j].x;
+            triangles[j].a.y += triangles_velocities[j].y;
+
+            triangles[j].b.x += triangles_velocities[j].x;
+            triangles[j].b.y += triangles_velocities[j].y;
+
+            triangles[j].c.x += triangles_velocities[j].x;
+            triangles[j].c.y += triangles_velocities[j].y;
+            
+        }
+        snprintf(filename, sizeof(filename), "out/out_%02d.bmp", i);
         writeImageToFile(width, height, image, filename);
     }
 }

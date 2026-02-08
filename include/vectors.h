@@ -3,25 +3,27 @@
 
 #include <stdbool.h>
 
-struct float3 {
+typedef struct {
     float x;
     float y;
     float z;
-};
+} float3;
 
-struct float2 {
+typedef struct {
     float x;
     float y;
-};
+} float2;
 
-struct triangle2 {
-    struct float2 a;
-    struct float2 b;
-    struct float2 c;
-};
+typedef struct {
+    float2 a;
+    float2 b;
+    float2 c;
+} triangle2;
 
-bool pointOnRightSideOfLine(struct float2 a, struct float2 b, struct float2 p);
-bool pointInTriangle(struct float2 a, struct float2 b, struct float2 c, struct float2 p);
-struct triangle2 getRandomTriangle(int max_x, int max_y);
+bool pointOnRightSideOfLine(float2 a, float2 b, float2 p);
+bool pointInTriangle(float2 a, float2 b, float2 c, float2 p);
+triangle2 getRandomTriangle(int max_x, int max_y);
+float2 getRandomFloat2();
+float3 getRandomFloat3();
 
 #endif // VECTORS_H

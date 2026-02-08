@@ -6,7 +6,7 @@ INCLUDE_DIR = include
 
 CFLAGS = -Wall -Wextra -std=c11 -I $(INCLUDE_DIR)
 # Automatically find all .c files in src/
-SRCS = $(wildcard $(SRC_DIR)/*.c)
+SRCS = $(shell find $(SRC_DIR) -name '*.c')
 # Define the final executable path
 TARGET = $(BUILD_DIR)/main
 
