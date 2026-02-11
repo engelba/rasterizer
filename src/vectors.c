@@ -50,3 +50,15 @@ float3 getRandomFloat3() {
     out = (float3) {getRandomFloatRange(0.0, 1.0), getRandomFloatRange(0.0, 1.0), getRandomFloatRange(0.0, 1.0)};
     return out;
 }
+
+void elementwise_sum_float2(float2 a, float2 b, float2 *out) {
+    out->x = a.x + b.x;
+    out->y = a.y + b.y;
+}
+
+void elementwise_sum_float3(float3 a, float3 b, float3 *out) {
+    out->x = a.x + b.x;
+    out->y = a.y + b.y;
+    out->z = a.z + b.z;
+}
+

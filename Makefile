@@ -14,7 +14,7 @@ all: $(TARGET)
 
 $(TARGET): $(SRCS)
 	@mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(SRCS) -o $(TARGET)
+	$(CC) $(CFLAGS) $(SRCS) -o $(TARGET) -lm
 
 clean:
 	rm -rf $(BUILD_DIR)

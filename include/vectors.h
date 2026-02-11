@@ -15,6 +15,11 @@ typedef struct {
 } float2;
 
 typedef struct {
+    int x;
+    int y;
+} int2;
+
+typedef struct {
     float2 a;
     float2 b;
     float2 c;
@@ -22,8 +27,13 @@ typedef struct {
 
 bool pointOnRightSideOfLine(float2 a, float2 b, float2 p);
 bool pointInTriangle(float2 a, float2 b, float2 c, float2 p);
+
 triangle2 getRandomTriangle(int max_x, int max_y);
+
 float2 getRandomFloat2();
 float3 getRandomFloat3();
+
+void elementwise_sum_float2(float2 a, float2 b, float2 *out);
+void elementwise_sum_float3(float3 a, float3 b, float3 *out);
 
 #endif // VECTORS_H

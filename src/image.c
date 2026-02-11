@@ -1,9 +1,12 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include "vectors.h"
-#include "image.h"
+#include<stdio.h>
+#include<stdbool.h>
+#include<stdlib.h>
+#include<math.h>
+#include"vectors.h"
+#include"image.h"
+#include"model.h"
 
-void writeImageToFile(int width, int height, float3 image[height][width], const char* filename) {
+void writeImageToFile(int width, int height, float3* image, const char* filename) {
     FILE* f = fopen(filename, "wb");
     if (!f) return;
 
@@ -40,9 +43,9 @@ void writeImageToFile(int width, int height, float3 image[height][width], const 
         for (int j = 0; j < width; j++) {
             // Clamp and convert float (0.0-1.0) to byte (0-255)
             // BMP uses BGR order
-            unsigned char b = (unsigned char)(image[i][j].z * 255.0f);
-            unsigned char g = (unsigned char)(image[i][j].y * 255.0f);
-            unsigned char r = (unsigned char)(image[i][j].x * 255.0f);
+            unsigned char b = (unsigned char)(image[i*width + j].z * 255.0f);
+            unsigned char g = (unsigned char)(image[i*width+j].y * 255.0f);
+            unsigned char r = (unsigned char)(image[i*width+j].x * 255.0f);
 
             fwrite(&b, 1, 1, f);
             fwrite(&g, 1, 1, f);
@@ -58,7 +61,8 @@ void createTestImage() {
     int width = 64;
     int height = 64;
 
-     float3 image[height][width];
+    float3* image;
+    image = (float3*)malloc(width * height * sizeof(float3)); 
 
     float2 a = {0.2f * height, 0.2f * width};
     float2 b = {0.4f * height, 0.7f * width};
@@ -68,8 +72,8 @@ void createTestImage() {
         for(int y = 0; y < height; y++) {
             float2 p = (float2) {(float)x, (float)y};
             bool inside = pointInTriangle(a, b, c, p) ;
-            if (inside) image[y][x] = (float3) {0.0f, 0.0f, 1.0f};
-            else image[y][x] = (float3){0.0f, 0.0f, 0.0f}; // 2. Explicit Black Background
+            if (inside) image[y*width +x] = (float3) {0.0f, 0.0f, 1.0f};
+            else image[y*width+x] = (float3){0.0f, 0.0f, 0.0f}; // 2. Explicit Black Background
             
         }
     }
@@ -83,7 +87,9 @@ void createTrianglesSoupImage() {
     int height = 512;
     char filename[64];
 
-    float3 image[height][width];
+    float3* image;
+    image = (float3*)malloc(width * height * sizeof(float3)); 
+
     int n_triangles = 10;
     float max_triangle_speed = 10.0;
 
@@ -103,7 +109,7 @@ void createTrianglesSoupImage() {
         // Clear image
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                image[y][x] = (float3){0.0f, 0.0f, 0.0f}; // Black bg
+                image[y*width +x] = (float3){0.0f, 0.0f, 0.0f}; // Black bg
             }
         }
 
@@ -113,7 +119,7 @@ void createTrianglesSoupImage() {
                 for(int y = 0; y < height; y++) {
                     float2 p = (float2) {(float)x, (float)y};
                     bool inside = pointInTriangle(triangles[j].a, triangles[j].b, triangles[j].c, p) ;
-                    if (inside) image[y][x] = triangle_colors[j];
+                    if (inside) image[y*width + x] = triangle_colors[j];
                 }
             }
 
@@ -131,4 +137,98 @@ void createTrianglesSoupImage() {
         snprintf(filename, sizeof(filename), "out/out_%02d.bmp", i);
         writeImageToFile(width, height, image, filename);
     }
+}
+
+
+float2 worldToScreen(float3 point, int2 canvas_size) {
+    // Center of the screen is (float2){canvas_size // 2, canvas_size // 2}
+    float screen_x = (point.x + 1.0f) * 0.5f * canvas_size.x;
+    float screen_y = (1.0f - point.y) * 0.5f * canvas_size.y;
+    return (float2) {screen_x, screen_y};
+}
+
+void display_model(Model model) {
+    int width = 512;
+    int height = 512;
+
+    float3* image = (float3*)malloc(width * height * sizeof(float3)); 
+    int n_triangles = model.n_faces;
+
+    float3* triangles_colors;
+    triangles_colors = (float3*) malloc(n_triangles * sizeof(float3));
+    // Init random triangle colors
+   for(int i = 0; i < n_triangles; ++i) {
+        triangles_colors[i] = getRandomFloat3();
+    } 
+
+    // Clear image
+    for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+            image[y *width+x] = (float3){0.0f, 0.0f, 0.0f}; // Black bg
+        }
+    }
+
+    triangle2 triangle;
+
+    // Draw Triangles
+    for (int j = 0; j < n_triangles; ++j) {
+
+        // Get the triangle values in orthographic projection
+        triangle.a = worldToScreen( 
+            (float3) { 
+                model.vertices[model.face_indices[j*3]].x,  
+                model.vertices[model.face_indices[j*3]].y,  
+                model.vertices[model.face_indices[j*3]].z
+                }, 
+            (int2) {width, height} ) ;
+    triangle.b =  worldToScreen( 
+            (float3) { 
+                model.vertices[model.face_indices[j*3+1]].x,  
+                model.vertices[model.face_indices[j*3+1]].y,  
+                model.vertices[model.face_indices[j*3+1]].z
+                }, 
+            (int2) {width, height}) ;
+    triangle.c =  worldToScreen( 
+            (float3) { 
+                model.vertices[model.face_indices[j*3+2]].x, 
+                model.vertices[model.face_indices[j*3+2]].y,  
+                model.vertices[model.face_indices[j*3+2]].z
+            }, 
+            (int2) {width, height}) ;
+
+        printf("A: x %f y %f\n" , triangle.a.x, triangle.a.y);
+        printf("B: x %f y %f\n" , triangle.b.x, triangle.b.y);
+        printf("C: x %f y %f\n" , triangle.c.x, triangle.c.y);
+
+        // Perform culling
+        float area = (triangle.b.x - triangle.a.x) * (triangle.c.y - triangle.a.y) - 
+                    (triangle.b.y - triangle.a.y) * (triangle.c.x - triangle.a.x);
+        if (fabs(area) < 0.1f) continue;
+
+        // Find triangle bouding box
+        int min_x = (int)fmin(triangle.a.x, fmin(triangle.b.x, triangle.c.x));
+        int max_x = (int)fmax(triangle.a.x, fmax(triangle.b.x, triangle.c.x));
+        int min_y = (int)fmin(triangle.a.y, fmin(triangle.b.y, triangle.c.y));
+        int max_y = (int)fmax(triangle.a.y, fmax(triangle.b.y, triangle.c.y));
+
+        // Clamp the bounding boxes
+        min_x = (min_x < 0) ? 0 : min_x;
+        max_x = (max_x > width - 1) ? width - 1 : max_x;
+        min_y = (min_y < 0) ? 0 : min_y;
+        max_y = (max_y > height - 1) ? height - 1 : max_y;
+
+        for(int x = min_x; x <max_x; x++) {
+            for(int y = min_y; y < max_y; y++) {
+                float2 p = (float2) {(float)x, (float)y};
+                bool inside = pointInTriangle(triangle.a, triangle.b, triangle.c, p);
+                if (inside) image[y*width +x] = triangles_colors[j];
+            }
+
+        }
+    }
+    writeImageToFile(width, height, image,  "out/out.bmp");
+    
+    free(triangles_colors);
+    free(image);
+
 }

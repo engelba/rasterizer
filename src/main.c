@@ -10,6 +10,9 @@ int main() {
     // createTrianglesSoupImage();
     
     Model model = loader_obj("assets/cube.obj");
+
+    display_model(model); 
+
     free_model(model);
 
     return 0;
