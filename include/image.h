@@ -3,12 +3,11 @@
 
 #include "vectors.h"
 #include "model.h"
+#include "config.h"
 
-void writeImageToFile(int width, int height, float3 * image, const char* filename);
-void createTestImage();
-void createTrianglesSoupImage();
-void display_model(Model model);
+void writeImageToFile(const Config* config, float3 * image);
 
-float2 worldToScreen(float3 point, int2 canvas_size);
+void display_model(const Config* config, Model model);
+float2 worldToScreen(const Config* config, float3 point);
 
 #endif // !IMAGE_H
