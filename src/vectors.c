@@ -23,7 +23,7 @@ bool pointInTriangle(float2 a, float2 b, float2 c, float2 p) {
     bool sideBC = pointOnRightSideOfLine(b, c, p);
     bool sideCA = pointOnRightSideOfLine(c, a, p);
     
-    return sideAB ==sideBC && sideBC == sideCA;
+    return sideAB  && sideBC && sideCA;
 }
 
 

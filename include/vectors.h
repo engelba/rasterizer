@@ -36,4 +36,6 @@ float3 getRandomFloat3();
 void elementwise_sum_float2(float2 a, float2 b, float2 *out);
 void elementwise_sum_float3(float3 a, float3 b, float3 *out);
 
+void get_basis_vector(float3 * pihat, float3 * pjhat, float3 * phhat);
+
 #endif // VECTORS_H

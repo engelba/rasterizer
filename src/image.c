@@ -142,9 +142,12 @@ void createTrianglesSoupImage() {
 
 float2 worldToScreen(float3 point, int2 canvas_size) {
     // Center of the screen is (float2){canvas_size // 2, canvas_size // 2}
-    float screen_x = (point.x + 1.0f) * 0.5f * canvas_size.x;
-    float screen_y = (1.0f - point.y) * 0.5f * canvas_size.y;
-    return (float2) {screen_x, screen_y};
+    float screenheight_world = 5.0f;
+    int pixel_per_world_unit = canvas_size.y / screenheight_world;
+
+    float2 pixel_offset = (float2) {point.x * pixel_per_world_unit + canvas_size.x / 2, point.y * pixel_per_world_unit + canvas_size.y / 2 };
+
+    return pixel_offset;
 }
 
 void display_model(Model model) {
